@@ -42,7 +42,7 @@ module.exports = function adminRoutes({ store, auth }) {
   });
 
   router.post('/logout', (req, res) => {
-    auth.endSession(res);
+    auth.endSession(req, res);
     res.redirect('/admin/login');
   });
 

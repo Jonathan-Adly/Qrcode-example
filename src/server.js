@@ -24,6 +24,11 @@ if (!adminPassword) {
     `  Set ADMIN_PASSWORD to choose your own (it will change on every restart until you do).\n`);
 }
 
+if (isProduction && adminPassword.length < 12) {
+  console.warn('Warning: ADMIN_PASSWORD is shorter than 12 characters. ' +
+    'The admin panel is reachable from the internet, so use a long, unique password.');
+}
+
 let sessionSecret = env.SESSION_SECRET;
 if (!sessionSecret) {
   if (isProduction) {

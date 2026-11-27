@@ -17,6 +17,10 @@ function safeEqual(a, b) {
 function createAuth({ adminPassword, secureCookies }) {
   const failedLogins = new Map(); // ip -> { count, resetAt }
 
+  // Mark cookies Secure when the site is configured for HTTPS or the request
+  // itself arrived over HTTPS (behind a proxy this needs TRUST_PROXY).
+  const isSecure = (req) => secureCookies || req.secure;
+
   function readSession(req) {
     const raw = req.signedCookies?.[COOKIE];
     if (!raw) return null;
@@ -30,7 +34,7 @@ function createAuth({ adminPassword, secureCookies }) {
     }
   }
 
-  function startSession(res) {
+  function startSession(req, res) {
     const session = {
       exp: Date.now() + SESSION_TTL_MS,
       csrf: crypto.randomBytes(24).toString('base64url'),
@@ -39,14 +43,14 @@ function createAuth({ adminPassword, secureCookies }) {
       signed: true,
       httpOnly: true,
       sameSite: 'lax',
-      secure: secureCookies,
+      secure: isSecure(req),
       maxAge: SESSION_TTL_MS,
       path: '/',
     });
   }
 
-  function endSession(res) {
-    res.clearCookie(COOKIE, { path: '/', httpOnly: true, sameSite: 'lax', secure: secureCookies });
+  function endSession(req, res) {
+    res.clearCookie(COOKIE, { path: '/', httpOnly: true, sameSite: 'lax', secure: isSecure(req) });
   }
 
   /** Makes req.session / res.locals.csrfToken available to every request. */
@@ -106,7 +110,7 @@ function createAuth({ adminPassword, secureCookies }) {
       return 'Incorrect password.';
     }
     failedLogins.delete(ip);
-    startSession(res);
+    startSession(req, res);
     return null;
   }
 

@@ -34,7 +34,7 @@ function createApp(config) {
 
   /** Absolute URL customers reach after scanning a menu's QR code. */
   app.locals.menuUrl = (req, menu) => {
-    const base = publicUrl || `${req.protocol}://${req.get('host')}`;
+    const base = publicUrl || `${req.protocol}://${req.host}`;
     return `${base}/m/${menu.code}`;
   };
   app.locals.formatPrice = formatPrice;
