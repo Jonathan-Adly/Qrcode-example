@@ -1,0 +1,30 @@
+# Render Blueprint: deploys the app with a persistent disk for the SQLite database.
+# In Render: New > Blueprint, pick this repository, then enter an ADMIN_PASSWORD.
+services:
+  - type: web
+    name: qr-menu
+    runtime: node
+    # Persistent disks need a paid instance type; "starter" is the smallest.
+    plan: starter
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /healthz
+    disk:
+      name: menu-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: ADMIN_PASSWORD
+        sync: false # Render asks you for this when you create the service
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: DATA_DIR
+        value: /var/data
+      - key: TRUST_PROXY
+        value: "1"
+      # Optional: once you add your own domain, set PUBLIC_URL (e.g. https://menu.example.com)
+      # in the Render dashboard so new QR codes use it.

@@ -52,9 +52,28 @@ Set these as environment variables (see `.env.example`):
 | `DATA_DIR` | `./data` | Folder for the SQLite database (`menus.db`). Back this up. |
 | `TRUST_PROXY` | off | Set to `1` behind a reverse proxy or load balancer (Heroku, Render, Fly, nginx…) so HTTPS is detected correctly. |
 
-## Deploying
+## Deploying (make it public)
 
-Any host that runs Node.js and has a persistent disk works (Render, Railway, Fly.io, a VPS…). Set `NODE_ENV=production`, `ADMIN_PASSWORD`, `PUBLIC_URL` and `SESSION_SECRET`, and point `DATA_DIR` at a persistent volume.
+The app needs a host with a **persistent disk**, because menus are stored in a SQLite file. Free plans that wipe the disk on every restart will lose your menus.
+
+### Render (recommended, a few clicks)
+
+This repository includes a `render.yaml` that sets everything up: the web service, a 1 GB disk for the database, HTTPS, health checks and a generated session secret.
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Jonathan-Adly/Qrcode-example)
+
+1. Click the button above, or in the [Render dashboard](https://dashboard.render.com) choose **New → Blueprint** and select this repository. Sign in with GitHub if asked.
+2. When prompted, enter an **ADMIN_PASSWORD**: a long, unique password, since the admin panel is on the internet.
+3. Confirm. Render shows the price before you confirm: persistent disks need a paid instance (the blueprint uses the smallest one, `starter`).
+4. When the deploy finishes, your site is live at `https://qr-menu-xxxx.onrender.com`. Open `/admin` there, sign in, and print your QR codes **from that address**. The codes will point to it.
+
+Every push to `main` redeploys automatically; your menus stay on the disk.
+
+**Using your own domain** (e.g. `menu.my-restaurant.com`): add it under the service's **Settings → Custom Domains** in Render, then set `PUBLIC_URL=https://menu.my-restaurant.com` under **Environment**. Do this before printing QR codes, because codes encode whichever address they were generated for.
+
+### Other hosts
+
+Any host that runs Node.js 22.13+ (or Docker) with a persistent volume works, such as Railway, Fly.io or a VPS. Set `NODE_ENV=production`, `ADMIN_PASSWORD`, `SESSION_SECRET` and `TRUST_PROXY=1`, point `DATA_DIR` at the persistent volume, and set `PUBLIC_URL` if customers will use a different address from the one you open the admin panel with.
 
 With Docker:
 
@@ -68,7 +87,7 @@ docker run -d -p 3000:3000 -v qr-menu-data:/data \
   qr-menu
 ```
 
-Serve the site over HTTPS. When `PUBLIC_URL` starts with `https://`, login cookies are marked secure.
+Serve the site over HTTPS. Login cookies are marked secure when `PUBLIC_URL` starts with `https://`, or when requests arrive over HTTPS (behind a proxy this needs `TRUST_PROXY`).
 
 ## How it works
 

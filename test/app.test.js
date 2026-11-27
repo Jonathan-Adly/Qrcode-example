@@ -318,3 +318,37 @@ test('formatPrice adds the currency to plain numbers only', () => {
   assert.equal(formatPrice('8 / 12', '$'), '8 / 12');
   assert.equal(formatPrice('', '$'), '');
 });
+
+// ---- Hosting behind an HTTPS proxy ---------------------------------------------
+
+test('behind an HTTPS proxy, cookies are Secure and QR codes use the public https URL', async () => {
+  const proxiedStore = openDatabase(':memory:');
+  const app = createApp({ store: proxiedStore, adminPassword: PASSWORD, sessionSecret: 's', trustProxy: 1 });
+  const proxied = await new Promise((resolve) => { const s = app.listen(0, () => resolve(s)); });
+  const url = `http://127.0.0.1:${proxied.address().port}`;
+  const forwarded = { 'x-forwarded-proto': 'https', 'x-forwarded-host': 'menus.example.org' };
+  try {
+    const login = (headers) => fetch(`${url}/admin/login`, {
+      method: 'POST',
+      redirect: 'manual',
+      headers: { 'content-type': 'application/x-www-form-urlencoded', ...headers },
+      body: new URLSearchParams({ password: PASSWORD }).toString(),
+    });
+
+    const plain = await login({});
+    assert.doesNotMatch(plain.headers.get('set-cookie'), /;\s*Secure/i);
+
+    const viaHttps = await login(forwarded);
+    const cookie = viaHttps.headers.get('set-cookie');
+    assert.match(cookie, /;\s*Secure/i);
+
+    const menu = proxiedStore.createMenu({ title: 'Brunch' });
+    const qrPage = await fetch(`${url}/admin/menus/${menu.id}/qr`, {
+      headers: { cookie: cookie.split(';')[0], ...forwarded },
+    });
+    assert.ok((await qrPage.text()).includes(`https://menus.example.org/m/${menu.code}`));
+  } finally {
+    proxied.close();
+    proxiedStore.close();
+  }
+});
