@@ -1,0 +1,22 @@
+<%- include('../partials/head', { title: 'Sign in · QR Menu', css: 'admin' }) %>
+<body class="login-page">
+  <main class="login-card">
+    <div class="login-brand">
+      <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM5 5v3h3V5zM16 5v3h3V5zM5 16v3h3v-3zM14 14h3v3h-3zM18 18h3v3h-3zM14 19h2v2h-2zM19 14h2v2h-2z"/></svg>
+      QR Menu
+    </div>
+    <h1>Admin sign in</h1>
+<% if (error) { %>
+    <p class="alert alert-error" role="alert"><%= error %></p>
+<% } %>
+    <form method="post" action="/admin/login">
+      <input type="hidden" name="next" value="<%= next %>">
+      <label class="field">
+        <span>Password</span>
+        <input type="password" name="password" autocomplete="current-password" required autofocus>
+      </label>
+      <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+    </form>
+  </main>
+</body>
+</html>

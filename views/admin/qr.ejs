@@ -1,0 +1,61 @@
+<%- include('../partials/head', { title: `QR code · ${menu.title} · QR Menu`, css: 'admin' }) %>
+<body>
+<%- include('../partials/admin-nav') %>
+  <main class="container">
+    <a class="back-link" href="/admin/menus/<%= menu.id %>">← Back to editor</a>
+    <div class="page-head">
+      <div>
+        <h1>QR code for “<%= menu.title %>”</h1>
+        <p class="muted">Customers scan this code to open the menu on their phone.</p>
+      </div>
+    </div>
+
+<% if (localOnly) { %>
+    <p class="alert alert-warning">
+      <strong>This code points to <%= new URL(menuUrl).host %>, which customers' phones can't reach.</strong>
+      Set the <code>PUBLIC_URL</code> setting to your site's public address (for example
+      <code>https://menu.your-restaurant.com</code>) before printing, or open this admin panel through your
+      computer's network address to test on a phone on the same Wi-Fi.
+    </p>
+<% } %>
+<% if (!menu.published) { %>
+    <p class="alert alert-warning">
+      This menu is a <strong>draft</strong>. Anyone who scans the code will see “Menu not available”
+      until you tick <em>Published</em> in the editor and save.
+    </p>
+<% } %>
+
+    <div class="qr-layout">
+      <div class="card qr-card">
+        <div class="qr-image" role="img" aria-label="QR code linking to <%= menuUrl %>"><%- svg %></div>
+      </div>
+
+      <div class="qr-side">
+        <section class="card">
+          <h2 class="card-title">Menu link</h2>
+          <div class="copy-row">
+            <input type="text" readonly value="<%= menuUrl %>" aria-label="Menu link">
+            <button type="button" class="btn" data-copy="<%= menuUrl %>">Copy</button>
+          </div>
+          <p class="muted small">
+            This link and QR code never change. Edit the menu as often as you like — codes you've
+            already printed will always show the latest version.
+          </p>
+          <p><a href="<%= menuUrl %>" target="_blank" rel="noopener">Open the menu →</a></p>
+        </section>
+
+        <section class="card">
+          <h2 class="card-title">Download or print</h2>
+          <div class="button-stack">
+            <a class="btn btn-primary" href="/admin/menus/<%= menu.id %>/qr.png?download=1">Download PNG</a>
+            <a class="btn" href="/admin/menus/<%= menu.id %>/qr.svg?download=1">Download SVG (for print shops)</a>
+            <a class="btn" href="/admin/menus/<%= menu.id %>/print">Print a table card</a>
+            <a class="btn" href="/admin/menus/<%= menu.id %>/print?layout=grid">Print 4 cards per page</a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

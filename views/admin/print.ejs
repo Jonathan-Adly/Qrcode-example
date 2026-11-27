@@ -1,0 +1,28 @@
+<%- include('../partials/head', { title: `Print · ${menu.title}`, css: 'print' }) %>
+<body class="layout-<%= layout %>">
+  <div class="print-toolbar no-print">
+    <a href="/admin/menus/<%= menu.id %>/qr">← Back</a>
+    <span>
+<% if (layout === 'grid') { %>
+      4 cards per page · <a href="/admin/menus/<%= menu.id %>/print">Switch to 1 per page</a>
+<% } else { %>
+      1 card per page · <a href="/admin/menus/<%= menu.id %>/print?layout=grid">Switch to 4 per page</a>
+<% } %>
+    </span>
+    <button type="button" data-print>Print</button>
+  </div>
+
+  <main class="sheet">
+<% for (let i = 0; i < (layout === 'grid' ? 4 : 1); i++) { %>
+    <article class="table-card">
+      <p class="card-kicker">Scan for our menu</p>
+      <h1 class="card-title"><%= menu.title %></h1>
+      <div class="card-qr"><%- svg %></div>
+      <p class="card-hint">Point your phone camera at the code</p>
+      <p class="card-url"><%= menuUrl %></p>
+    </article>
+<% } %>
+  </main>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

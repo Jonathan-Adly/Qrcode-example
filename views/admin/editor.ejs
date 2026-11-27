@@ -1,0 +1,29 @@
+<%- include('../partials/head', { title: `Edit ${menu.title} · QR Menu`, css: 'admin' }) %>
+<body>
+<%- include('../partials/admin-nav') %>
+  <div class="editor-bar">
+    <div class="editor-bar-inner">
+      <a class="back-link" href="/admin">← All menus</a>
+      <div class="editor-status" id="save-status" role="status" aria-live="polite">All changes saved</div>
+      <div class="editor-actions">
+        <a class="btn btn-sm" href="/m/<%= menu.code %>" target="_blank" rel="noopener">View menu</a>
+        <a class="btn btn-sm" href="/admin/menus/<%= menu.id %>/qr">QR code</a>
+        <button type="button" class="btn btn-primary btn-sm" id="save-button">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="container container-narrow">
+    <noscript><p class="alert alert-error">The menu editor needs JavaScript enabled.</p></noscript>
+    <div id="editor"></div>
+    <p class="muted small editor-foot">
+      Customer link: <a href="<%= menuUrl %>" target="_blank" rel="noopener"><%= menuUrl %></a>
+      · Tip: press <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>S</kbd> to save.
+    </p>
+  </main>
+
+  <script type="application/json" id="editor-data"><%- JSON.stringify({ menu, limits }).replace(/</g, '\\u003c') %></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/editor.js"></script>
+</body>
+</html>

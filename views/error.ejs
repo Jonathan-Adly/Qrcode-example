@@ -1,0 +1,11 @@
+<%- include('partials/head', { title, css: 'menu' }) %>
+<body class="message-page">
+  <main class="message">
+    <h1><%= title %></h1>
+    <p><%= message %></p>
+<% if (isAdmin) { %>
+    <p><a href="/admin">Back to your menus</a></p>
+<% } %>
+  </main>
+</body>
+</html>

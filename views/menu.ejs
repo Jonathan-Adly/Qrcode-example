@@ -1,0 +1,65 @@
+<%- include('partials/head', { title: menu.title, css: 'menu' }) %>
+<body>
+<% if (isPreview) { %>
+  <div class="preview-banner" role="status">
+    Draft preview — customers can't see this menu until you publish it.
+  </div>
+<% } %>
+  <header class="menu-header">
+    <h1><%= menu.title %></h1>
+<% if (menu.description) { %>
+    <p class="menu-description"><%= menu.description %></p>
+<% } %>
+  </header>
+
+<% if (menu.sections.length > 1) { %>
+  <nav class="section-nav" aria-label="Menu sections">
+    <div class="section-nav-inner">
+<% menu.sections.forEach((section, i) => { %>
+      <a href="#section-<%= i + 1 %>"><%= section.name %></a>
+<% }) %>
+    </div>
+  </nav>
+<% } %>
+
+  <main class="menu-body">
+<% if (!menu.sections.length) { %>
+    <p class="menu-empty">This menu is being prepared. Please check back soon.</p>
+<% } %>
+<% menu.sections.forEach((section, i) => { %>
+    <section class="menu-section" id="section-<%= i + 1 %>">
+      <h2><%= section.name %></h2>
+<% if (section.description) { %>
+      <p class="section-description"><%= section.description %></p>
+<% } %>
+      <ul class="items">
+<% section.items.forEach((item) => { %>
+        <li class="item<%= item.available ? '' : ' is-sold-out' %>">
+          <div class="item-line">
+            <h3 class="item-name"><%= item.name %></h3>
+<% if (item.price) { %>
+            <span class="item-leader" aria-hidden="true"></span>
+            <span class="item-price"><%= formatPrice(item.price, menu.currency) %></span>
+<% } %>
+          </div>
+<% if (item.description) { %>
+          <p class="item-description"><%= item.description %></p>
+<% } %>
+<% if (item.tags.length || !item.available) { %>
+          <ul class="tags" aria-label="Details">
+<% if (!item.available) { %>
+            <li class="tag tag-sold-out">Sold out</li>
+<% } %>
+<% item.tags.forEach((tag) => { %>
+            <li class="tag"><%= tag %></li>
+<% }) %>
+          </ul>
+<% } %>
+        </li>
+<% }) %>
+      </ul>
+    </section>
+<% }) %>
+  </main>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<%- include('../partials/head', { title: 'Menus · QR Menu', css: 'admin' }) %>
+<body>
+<%- include('../partials/admin-nav') %>
+  <main class="container">
+    <div class="page-head">
+      <div>
+        <h1>Your menus</h1>
+        <p class="muted">Each menu gets its own QR code. Edit a menu any time — printed codes keep working.</p>
+      </div>
+    </div>
+
+<% if (error) { %>
+    <p class="alert alert-error" role="alert"><%= error %></p>
+<% } %>
+<% if (notice) { %>
+    <p class="alert alert-success" role="status"><%= notice %></p>
+<% } %>
+
+    <form class="card create-form" method="post" action="/admin/menus">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label class="field create-field">
+        <span>New menu</span>
+        <input type="text" name="title" placeholder="e.g. Dinner, Drinks, Weekend brunch"
+               maxlength="<%= limits.title %>" required>
+      </label>
+      <button type="submit" class="btn btn-primary">Create menu</button>
+    </form>
+
+<% if (!menus.length) { %>
+    <div class="empty-state">
+      <h2>No menus yet</h2>
+      <p>Create your first menu above. You'll add sections and dishes next, then print its QR code.</p>
+    </div>
+<% } else { %>
+    <ul class="menu-list">
+<% menus.forEach((menu) => { %>
+      <li class="card menu-row">
+        <div class="menu-row-main">
+          <h2 class="menu-row-title">
+            <a href="/admin/menus/<%= menu.id %>"><%= menu.title %></a>
+<% if (menu.published) { %>
+            <span class="badge badge-live">Published</span>
+<% } else { %>
+            <span class="badge badge-draft">Draft</span>
+<% } %>
+          </h2>
+          <p class="muted small">
+            <%= menu.sectionCount %> <%= menu.sectionCount === 1 ? 'section' : 'sections' %> ·
+            <%= menu.itemCount %> <%= menu.itemCount === 1 ? 'item' : 'items' %> ·
+            Updated <time datetime="<%= menu.updatedAt %>" data-local-time><%= formatDate(menu.updatedAt) %> UTC</time>
+          </p>
+        </div>
+        <div class="menu-row-actions">
+          <a class="btn btn-primary btn-sm" href="/admin/menus/<%= menu.id %>">Edit</a>
+          <a class="btn btn-sm" href="/admin/menus/<%= menu.id %>/qr">QR code</a>
+          <a class="btn btn-sm" href="/m/<%= menu.code %>" target="_blank" rel="noopener">View</a>
+          <form method="post" action="/admin/menus/<%= menu.id %>/duplicate">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="btn btn-sm">Duplicate</button>
+          </form>
+          <form method="post" action="/admin/menus/<%= menu.id %>/delete"
+                data-confirm="Delete “<%= menu.title %>”? Its QR code will stop working. This can't be undone.">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+          </form>
+        </div>
+      </li>
+<% }) %>
+    </ul>
+<% } %>
+  </main>
+  <script src="/js/admin.js"></script>
+</body>
+</html>
